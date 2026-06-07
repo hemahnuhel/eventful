@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -11,7 +12,19 @@ import routes from './routes';
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+  })
+);
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 // Capture raw body on the Paystack webhook so HMAC signature verification works.
@@ -27,6 +40,9 @@ app.use(
 
 app.use(express.json());
 app.use(morgan('dev'));
+
+// Serve the landing page at /
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/api', rateLimiter);
 
