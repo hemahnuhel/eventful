@@ -1,0 +1,13 @@
+process.env.NODE_ENV = 'test';
+process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+process.env.REDIS_URL = 'redis://localhost:6379';
+process.env.JWT_SECRET = 'test_secret';
+process.env.JWT_EXPIRES_IN = '7d';
+process.env.PAYSTACK_SECRET_KEY = 'sk_test_dummy';
+process.env.SMTP_HOST = 'smtp.test.com';
+process.env.SMTP_PORT = '587';
+process.env.SMTP_USER = 'test@test.com';
+process.env.SMTP_PASS = 'test';
+process.env.EMAIL_FROM = 'no-reply@test.com';
+process.env.APP_URL = 'http://localhost:3000';
+process.env.CLIENT_URL = 'http://localhost:3000';

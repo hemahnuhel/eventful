@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CREATOR
+  EVENTEE
+}
+
+enum TicketStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum ReminderUnit {
+  MINUTES
+  HOURS
+  DAYS
+  WEEKS
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         Role
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  events    Event[]
+  tickets   Ticket[]
+  reminders Reminder[]
+
+  @@map("users")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  creatorId   String
+  title       String
+  description String
+  location    String
+  bannerUrl   String?
+  price       Decimal  @default(0)
+  capacity    Int
+  startsAt    DateTime
+  endsAt      DateTime
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator   User       @relation(fields: [creatorId], references: [id])
+  tickets   Ticket[]
+  reminders Reminder[]
+
+  @@map("events")
+}
+
+model Ticket {
+  id            String       @id @default(uuid())
+  eventId       String
+  userId        String
+  status        TicketStatus @default(PENDING)
+  qrCodeUrl     String?
+  paystackRef   String?      @unique
+  amountPaid    Decimal      @default(0)
+  scannedAt     DateTime?
+  purchasedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  event  Event  @relation(fields: [eventId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("tickets")
+}
+
+model Reminder {
+  id           String       @id @default(uuid())
+  userId       String
+  eventId      String
+  value        Int
+  unit         ReminderUnit
+  scheduledFor DateTime
+  sent         Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@map("reminders")
+}
